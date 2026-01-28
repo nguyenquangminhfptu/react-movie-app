@@ -23,11 +23,28 @@ function Home(){
    }
 , []);//sử dụng hook useEffect để thực hiện các tác vụ phụ, ở đây là tải danh sách phim phổ biến khi component được gắn vào DOM
 
-  function handleSearch(e){
+
+  const handleSearch = async (e) => {
     e.preventDefault();//ngăn chặn hành vi mặc định của form khi submit
-    alert(`Searching for: ${searchQuery}`);//hiển thị thông báo tìm kiếm với giá trị của searchQuery
+  
+    if(!searchQuery.trim()) return;//nếu searchQuery rỗng hoặc chỉ chứa khoảng trắng thì không thực hiện tìm kiếm
+    if(loading) return;//nếu đang trong trạng thái loading thì không thực hiện tìm kiếm
+    setLoading (true);
+    try{
+      const searchResults = await searchMovies(searchQuery);//gọi hàm searchMovies để tìm kiếm phim dựa trên searchQuery
+      setMovies(searchResults);//cập nhật biến movies với kết quả tìm kiếm
+    }catch (error){
+      console.error("Error searching movies:", error);
+      setError("Failed to search movies. Please try again later.");
+    }finally{
+      setLoading(false);
+    }
+      
+    
     setSearchQuery("");
   }
+
+
   return <div className="home">
     <form onSubmit={handleSearch} className="search-form">
       <input type="text" 
@@ -38,6 +55,10 @@ function Home(){
       />
       <button type="submit" className="search-button">Search</button>
     </form>
+
+    {error && <p className="error-message">{error}</p>}
+    {loading && <p>Loading movies...</p>}
+
     <div className="movies-grid">
       {movies.map(movie => (
        <MovieCard key={movie.id} movie={movie} />
