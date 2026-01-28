@@ -5,19 +5,22 @@ function MovieCard({movie}) {
     alert(`You clicked on ${movie.title}`);
   }
 
+  const imageUrl = movie.poster_path 
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
+    : 'https://via.placeholder.com/500x750?text=No+Image';
 
   return <div className="movie-card">
     <div className="movie-poster">
-      <img src={movie.url} alt={movie.title} />
+      <img src={imageUrl} alt={movie.title} />
       <div className="movie-overlay">
         <button className="favorite-btn" onClick={onFavoriteClick}>
-          ❤️
+          ♡
         </button>
       </div>
     </div>
     <div className="movie-info">
       <h3>{movie.title}</h3>
-      <p>{movie.release_date}⭐</p>
+      <p>{movie.release_date}</p>
     </div>
   </div>
 }

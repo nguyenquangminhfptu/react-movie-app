@@ -1,22 +1,34 @@
 import '../css/Home.css'
 import MovieCard from '../components/MovieCard'
-import {useState} from 'react'
-
+import {useState, useEffect} from 'react'
+import { searchMovies, getPopularMovies } from '../services/api';
 function Home(){
   const [searchQuery, setSearchQuery] = useState("");//khai báo biến searchQuery và hàm setSearchQuery để cập nhật giá trị
+  const [movies, setMovies] = useState([]);//khai báo biến movies để lưu trữ danh sách phim và hàm setMovies để cập nhật giá trị
+  const [error, setError] = useState(null);//khai báo biến error để lưu trữ lỗi và hàm setError để cập nhật giá trị
+  const [loading, setLoading] = useState(false);//khai báo biến loading để theo dõi trạng thái tải dữ liệu và hàm setLoading để cập nhật giá trị
+  useEffect(() => {
+    const loadPopularMovies = async () => {//gọi hàm bất đồng bộ để tải danh sách phim phổ biến
+      try{
+      const popularMovies = await getPopularMovies();//gọi hàm getPopularMovies để lấy danh sách phim phổ biến
+      setMovies(popularMovies);//cập nhật biến movies với danh sách phim lấy được
+      } catch (error){
+        console.error("Error fetching popular movies:", error);//xử lý lỗi nếu có
+        setError("Failed to load popular movies. Please try again later.");//cập nhật biến error với thông báo lỗi
+      }finally{
+        setLoading(false);//đặt trạng thái loading về false sau khi hoàn thành tải dữ liệu
+      }
+    }
+    loadPopularMovies();//gọi hàm loadPopularMovies để thực hiện tải danh sách phim phổ biến
+   }
+, []);//sử dụng hook useEffect để thực hiện các tác vụ phụ, ở đây là tải danh sách phim phổ biến khi component được gắn vào DOM
 
-  const movies = [
-    {id: 1, title: "Inception", release_date: "2010", url: "https://example.com/inception.jpg" },
-    {id: 2, title: "The Dark Knight", release_date: "2008", url: "https://example.com/dark_knight.jpg" },
-    {id: 3, title: "Interstellar", release_date: "2014", url: "https://example.com/interstellar.jpg" },
-  ]
   function handleSearch(e){
     e.preventDefault();//ngăn chặn hành vi mặc định của form khi submit
     alert(`Searching for: ${searchQuery}`);//hiển thị thông báo tìm kiếm với giá trị của searchQuery
     setSearchQuery("");
   }
   return <div className="home">
-    <h1>Welcome to MovieApp</h1>
     <form onSubmit={handleSearch} className="search-form">
       <input type="text" 
       placeholder="Search for movies..." 
